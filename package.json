@@ -1,10 +1,11 @@
 {
   "name": "sodabotnik",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "author": "sodacamper <oleg@soda.camp>",
   "description": "Your friendly data butler",
   "dependencies": {
+    "ckan": "^0.2.3",
     "hubot": "^2.19.0",
     "hubot-diagnostics": "0.0.1",
     "hubot-google-images": "^0.2.6",
