@@ -1,14 +1,9 @@
-# Description:
-#   Example scripts for you to examine and try out.
-#
-# Notes:
-#   They are commented out by default, because most of them are pretty silly and
-#   wouldn't be useful and amusing enough for day to day huboting.
-#   Uncomment the ones you want to try and experiment with.
-#
-#   These are from the scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
+# Scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
 module.exports = (robot) ->
+
+  robot.respond /say hello/i, (res) ->
+     res.send "Hello, I am a DA-001 series personal algoristant\n(Powered by a Hubot 2 engine)\nDelighted to be at your service today :)\nPlease follow and patch me at http://github.com/sodacamp/sodabotnik"
 
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
