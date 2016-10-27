@@ -33,7 +33,7 @@ module.exports = (robot) ->
         res.send "#{data.event.name} is over. Hack again soon!"
 
   robot.respond /top( projects)?/i, (res) ->
-    robot.http(DRIBDAT_URL + "/api/event/1/projects.json")
+    robot.http(DRIBDAT_URL + "/api/event/current/projects.json")
     .header('Accept', 'application/json')
     .get() (err, response, body) ->
       # error checking code here
