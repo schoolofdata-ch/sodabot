@@ -27,10 +27,9 @@ You'll see some start up output and a prompt:
     [Sat Feb 28 2015 12:38:27 GMT+0000 (GMT)] INFO Using default redis on localhost:6379
     sodabotnik>
 
-Then you can interact with sodabotnik by typing `sodabotnik help`.
+Then you can interact with sodabotnik by typing commands like `sodabotnik help`.
 
     sodabotnik> sodabotnik help
-    sodabotnik animate me <query> - The same thing as `image me`, except adds [snip]
     sodabotnik help - Displays all of the help commands that sodabotnik knows about.
     ...
 
