@@ -1,10 +1,6 @@
 # Scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
-module.exports = (robot) ->
-
-  robot.respond /say hello/i, (res) ->
-     res.send "Hello, I am a DA-001 series personal algoristant\n(Powered by a Hubot 2 engine)\nDelighted to be at your service today :)\nPlease follow and patch me at http://github.com/sodacamp/sodabotnik"
-
+# module.exports = (robot) ->
   # robot.hear /badger/i, (res) ->
   #   res.send "Badgers? BADGERS? WE DON'T NEED NO STINKIN BADGERS"
   #
