@@ -32,7 +32,7 @@ module.exports = (robot) ->
 					total = json.result.count
 					if datasets.length > 0
 						latest = ("#{ds.title.en}\n" +
-							"https://opendata.swiss/en/dataset/" +
+							"https://" + portal + "/en/dataset/" +
 							"#{ds.name}" for ds in datasets)
 						latest = latest[0..2].join '\n'
 						res.send "#{latest}"
