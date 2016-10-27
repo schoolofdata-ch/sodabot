@@ -4,14 +4,13 @@
 # Dependencies:
 #
 # Commands:
+#   hubot who are you - Some info on me and my makers
 #   hubot welcome - Get started with the healthy hacker bot
-#
-# Scripting documentation: https://github.com/github/hubot/blob/master/docs/scripting.md
 
 module.exports = (robot) ->
 
   robot.respond /(who|what) are you.*/i, (res) ->
-    res.send "I am a SODA-001 series personal algoristant\n(Powered by a Hubot 2 engine)\nDelighted to be at your service today :)\nPlease follow and patch me at http://github.com/sodacamp/sodabotnik"
+    res.send "I am a SODA-001 series personal algoristant\n(Powered by a Hubot 2 engine)\nDelighted to be at your service today :)\nLeave questions or suggestions at https://github.com/sodacamp/sodabotnik/issues"
 
   robot.respond /(welcome|why are you here)/i, (res) ->
     res.send "Hi! I am here to make sure that you take good care of yourself during this hackathon.\nAfter a while of working on something intently, human concentration usually takes a dive (we bots usually fare batter) - and at some point you even experience pain from staying in the same position too long. Often humans do not drink enough and get dehydrated, which hinders performance and concentration.\nI am here to help fix that. Tell me when you are READY!"
