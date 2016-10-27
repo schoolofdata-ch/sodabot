@@ -19,10 +19,11 @@ module.exports = (robot) ->
   remindIntervalId = null
   currentReminder = 0
   reminderTexts = [
-    'Now would be a great time to drink some (tap :) water.',
-    'Did you have a strech within the last hour? Get up and do one now if not.',
-    'How about taking a break from the screen - go outside, get some fresh air!',
-    'Can you still focus clearly? How many fingers am I holding up _(ツ)_/¯'
+    ':potable_water:  Now would be a great time to drink some tap water.',
+    ':raising_hand: Did you have a strech within the last hour? Get up and do one now if not.',
+    ':deciduous_tree: How about taking a break from the screen - go outside, get some fresh air!',
+    ':tired_face: Can you still focus clearly? How many fingers am I holding up _(ツ)_/¯',
+    'Boy, am I happy to see you still with me. That is all for now.',
   ]
 
   robot.respond /.*(ready)[!]*/i, (res) ->
@@ -36,6 +37,8 @@ module.exports = (robot) ->
         res.send reminderTexts[currentReminder]
         if ++currentReminder == reminderTexts.length
           currentReminder = 0
+          clearInterval(remindIntervalId)
+          remindIntervalId = null
       , 1000 * 60 * 0.1 # TODO: set to every 25 or 55 minutes
 
   robot.respond /.*(quiet)[!]*/i, (res) ->
