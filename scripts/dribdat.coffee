@@ -7,6 +7,7 @@
 #   hubot time left - How much time until the hackathon starts or finishes?
 #   hubot top projects - Show the most active projects at the hackathon.
 #   hubot find <query> - Search among the current hackathon projects.
+#
 
 module.exports = (robot) ->
 
