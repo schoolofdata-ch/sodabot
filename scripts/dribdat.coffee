@@ -7,7 +7,9 @@
 #   hubot time left - How much time until the hackathon starts or finishes?
 #   hubot top projects - Show the most active projects at the hackathon.
 #   hubot find <query> - Search among the current hackathon projects.
-#
+#   hubot start project - Get help starting a project
+
+logger = require('tracer').colorConsole()
 
 module.exports = (robot) ->
 
@@ -20,6 +22,10 @@ module.exports = (robot) ->
     'Rushing the ball is all about ball control. If you run the ball, you control the clock. If you control the clock, you usually control the game. -Tiki Barber',
     'The environmental crisis is all a result of rushing. -Ed Begley, Jr.'
   ]
+
+  robot.hear /(.*)/, (res) ->
+    query = res.match[0]
+    logger.trace "#{query} [##{res.message.room}]"
 
   robot.respond /time( left)?\??/i, (res) ->
     robot.http(DRIBDAT_URL + "/api/event/current/info.json")
@@ -63,3 +69,21 @@ module.exports = (robot) ->
         res.send "Here are #{data.projects.length} matches:"
         for project in data.projects
           res.send "*#{project.name}*: #{project.summary} #{DRIBDAT_URL}/project/#{project.id}"
+
+  hasPicked = false
+  robot.respond /start( project)?(.*)/i, (res) ->
+    query = res.match[res.match.length-1].trim()
+    if query is ""
+      res.send "So you want to start a new project? Great! First you need to pick a name with your team. Say START followed by a name."
+      setTimeout () ->
+          return if hasPicked
+          res.send "Having trouble finding a name? Try http://www.ykombinator.com/"
+          setTimeout () ->
+              return if hasPicked
+              res.send "Maybe that was not so helpful :laughing: Try this instead: http://www.namemesh.com/company-name-generator/"
+            , 1000 * 30
+        , 1000 * 5
+      return
+    hasPicked = true
+    teamname = query.toLowerCase().replace(/[^A-z0-9]/g, "-")
+    res.send "Great! If you have not already, you should now start a channel with the same name, and invite your team members to ##{teamname}"

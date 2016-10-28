@@ -12,7 +12,8 @@
     "hubot-lets-chat": "0.0.7",
     "hubot-redis-brain": "0.0.3",
     "hubot-shell": "^1.0.2",
-    "hubot-slack": "^3.4.2"
+    "hubot-slack": "^3.4.2",
+    "tracer": "^0.8.7"
   },
   "engines": {
     "node": ">=0.10.x"

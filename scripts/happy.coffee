@@ -11,12 +11,6 @@
 
 module.exports = (robot) ->
 
-  robot.respond /(who|what) are you.*/i, (res) ->
-    res.send "I am a SODA-001 series personal algoristant powered by a Hubot 2 engine - delighted to be with you today :)\nSend questions or suggestions or fork my code at https://github.com/sodacamp/sodabotnik/issues"
-
-  robot.respond /(welcome|why are you here)/i, (res) ->
-    res.send ":bell: After a while of working on something intently, human concentration usually takes a dive (we bots usually fare batter) - often for simple reasons like postures or hydration. I am here to help fix that. Tell me when you are READY, and I will send your team a healthy habit every half hour, brought to you by @max of #mySYNS"
-
   remindIntervalId = null
   reminderTexts = [
     ':eight_spoked_asterisk: Take the task at hand as seriously as you would your regular work. The more you put into a hackathon, the more you get out. But at the same time, use the opportunity to stretch your boundaries and try something new!',
@@ -28,6 +22,7 @@ module.exports = (robot) ->
     ':eight_spoked_asterisk: Some things are free. Some things you pay for. Some things are priceless. Your project will have some of each - and in the things-to-pay for category, improvements to software and data and defining work that could be outsourced are good things to consider. Do not limit your options',
     ':squirrel: Oh boy, am I happy to see you still @here. Still having fun? Good! No? Watch and follow my lead: https://i.imgur.com/XBAdzwg.mp4',
     ':stars: “Do. Or do not. There is no try.” –Yoda',
+    ':spock-hand: “Live long, and prosper.” –Spock'
     ':neckbeard: Remember to stretch your neck, many people have back and neck pain from holding the same position too long. Make sure you stretch your neck - look over your left then over your right shoulder. You can also use your arm to tilt your head like this: https://www.mskcc.org/sites/default/files/styles/medium/public/node/20311/images/neck-B.jpg',
     ':potable_water: Often humans do not drink enough and get dehydrated, which hinders performance and concentration. Take 5 and down some tap.',
     ':tired_face: Can you still focus clearly? How many fingers am I holding up _(ツ)_/¯ Maybe a quick nap on the couch would help.',
@@ -44,14 +39,20 @@ module.exports = (robot) ->
     ':stars: “Somebody has to save our skins.” – Leia Organa',
     ':footprints: Lets take care of you ankels. Stretch them out a bit, hold your toes up, and flex your ankle upwards. Next hold your tows down and flex into the other direction, repeat this 5-10 times, like this: http://www.posturite.co.uk/media//workstation-exercises/ankle-stretch.gif',
     ':stars: “Stay on target.” – Gold Five',
-    ':face_with_rolling_eyes: Well, I am out of suggestions for now, but perhaps you have one for me? Write a note to my developers with your feedback by leaving a note in #support or https://github.com/sodacamp/sodabotnik/issues'
+    'Do you have ideas on feature improvements? Feel free to write a note to my developers in the #support channel, or say ISSUE. And hey, I am just a baby bot, so go gentle, okay? :face_with_rolling_eyes:'
   ]
 
-  robot.respond /.*(ready)[!]*/i, (res) ->
+  robot.respond /(issue|bug|problem|who are you|what are you).*/i, (res) ->
+    res.send "I am a SODA-001 series personal algoristant powered by a Hubot 2 engine - delighted to be with you today :simple_smile:\nDid you find a bug or have an improvement to suggest? Write a note to my developers in the #support channel, or look for *sodabotnik* on GitHub and blame him instead!"
+
+  robot.respond /(hello|hey|gruezi|grüzi|welcome|why are you here)/i, (res) ->
+    res.send "Hi there! So awesome to be here at this hackathon. After a while of working on something intently human [not bot, mind you :robot_face:] concentration usually takes a dive, often for simple reasons like postures or hydration. I am here to help fix that. If you are READY, I will send your team a healthy habit every half hour - brought to you by @max of #mySYNS\n\nReady?"
+
+  robot.respond /.*(yes|ready|s go)[!]*/i, (res) ->
     if remindIntervalId
-      res.send "I am already active, and you should get a message in the next hour. If you need help *now*, leave a note in #support"
+      res.send "All set! You should get a message in the next hour. If you need help *now*, leave a note in #support"
       return
-    res.send "OK! I will start checking in on you regularly. To shush me, just tell me to be QUIET. Happy hacking!"
+    res.send "Okay, I will check in on you regularly. To shush me, just tell me to be QUIET. Happy hacking!"
     channelActive = true
     remindIntervalId = setInterval () ->
         res.send res.random reminderTexts
