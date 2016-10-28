@@ -1,11 +1,12 @@
 # Description:
-#   Commands to query CKAN portals
+#   Commands to query CKAN portals, currently configured for https://opendata.swiss
 #
 # Dependencies:
 #   "ckan.js"
 #
 # Commands:
-#   hubot ckan:fresh <portal> - Get latest 5 datasets from a named portal (or blank for default)
+#   hubot fresh data - Get the latest open datasets
+#   hubot data on <subject> - Query datasets for a subject
 
 CKAN = require 'ckan'
 portal = "opendata.swiss"
@@ -13,14 +14,14 @@ client = new CKAN.Client "https://#{portal}"
 
 module.exports = (robot) ->
 
-	robot.respond /more (.*)/i, (res) ->
-		query = res.match[1]
-		if query is "data"
+	robot.respond /(fresh )?(data)( on)?(.*)/i, (res) ->
+		query = res.match[res.match.length-1].trim()
+		if query is ""
 			data = { sort: 'metadata_modified desc' }
 			res.reply "Hold on, fetching fresh data from #{portal}..."
 		else
 			data = { q: query }
-			res.reply "Looking up top '#{query}' data in #{portal}..."
+			res.reply "Looking up '#{query}' data in #{portal}..."
 		action = "package_search"
 		client.action action, data, (err, json) ->
 			if !err
@@ -31,7 +32,7 @@ module.exports = (robot) ->
 					total = json.result.count
 					if datasets.length > 0
 						latest = ("#{ds.title.en}\n" +
-							"https://opendata.swiss/en/dataset/" +
+							"https://" + portal + "/en/dataset/" +
 							"#{ds.name}" for ds in datasets)
 						latest = latest[0..2].join '\n'
 						res.send "#{latest}"
