@@ -15,10 +15,9 @@ module.exports = (robot) ->
     res.send "I am a SODA-001 series personal algoristant powered by a Hubot 2 engine - delighted to be with you today :)\nSend questions or suggestions or fork my code at https://github.com/sodacamp/sodabotnik/issues"
 
   robot.respond /(welcome|why are you here)/i, (res) ->
-    res.send ":bell: After a while of working on something intently, human concentration usually takes a dive (we bots usually fare batter) - often for simple reasons like postures or hydration. I am here to help fix that. Tell me when you are READY, and I will send your team a healthy habit every half hour with help from http://mysyns.com/"
+    res.send ":bell: After a while of working on something intently, human concentration usually takes a dive (we bots usually fare batter) - often for simple reasons like postures or hydration. I am here to help fix that. Tell me when you are READY, and I will send your team a healthy habit every half hour, brought to you by @max of #mySYNS"
 
   remindIntervalId = null
-  currentReminder = 0
   reminderTexts = [
     ':eight_spoked_asterisk: Take the task at hand as seriously as you would your regular work. The more you put into a hackathon, the more you get out. But at the same time, use the opportunity to stretch your boundaries and try something new!',
     ':potable_water:  Now would be a great time to drink some tap water. Go. I will still be here when you return.',
@@ -55,11 +54,7 @@ module.exports = (robot) ->
     res.send "OK! I will start checking in on you regularly. To shush me, just tell me to be QUIET. Happy hacking!"
     channelActive = true
     remindIntervalId = setInterval () ->
-        res.send reminderTexts[currentReminder]
-        if ++currentReminder == reminderTexts.length
-          currentReminder = 0
-          clearInterval(remindIntervalId)
-          remindIntervalId = null
+        res.send res.random reminderTexts
       , 1000 * 60 * 30
 
   robot.respond /.*(quiet)[!]*/i, (res) ->
