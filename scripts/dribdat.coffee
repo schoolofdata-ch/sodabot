@@ -9,7 +9,9 @@
 #   hubot find <query> - Search among the current hackathon projects.
 #   hubot start project - Get help starting a project
 
-logger = require('tracer').colorConsole()
+logger = require('tracer').dailyfile(
+  root: '.'
+  maxLogFiles: 5)
 
 module.exports = (robot) ->
 
