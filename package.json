@@ -1,9 +1,9 @@
 {
-  "name": "sodabotnik",
-  "version": "0.0.1",
+  "name": "sodabot",
+  "version": "0.0.2",
   "private": true,
-  "author": "sodacamper <oleg@soda.camp>",
-  "description": "Your friendly data butler",
+  "author": "Oleg Lavrovsky <oleg@utou.ch>",
+  "description": "A hackathon helper",
   "dependencies": {
     "ckan": "^0.2.3",
     "hubot": "^2.19.0",
