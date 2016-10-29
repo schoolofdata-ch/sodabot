@@ -123,7 +123,7 @@ module.exports = (robot) ->
       if data.projects.length == 0
         res.send "No projects to speak of. Have we even started yet? :stuck_out_tongue_closed_eyes:"
       else
-        pcount = data.projects.length + 1
+        pcount = data.projects.length
         prlist = ""
         for project, ix in data.projects
           roomname = scrunchName project.name
