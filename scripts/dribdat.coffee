@@ -150,6 +150,7 @@ module.exports = (robot) ->
   roomtopic = null
   robot.topic (res) ->
     roomtopic = res.message.text
+    logdev.debug "Topic changed to #{roomtopic}"
 
   robot.respond /(level up|level down|up)(date )?(project)?(.*)/i, (res) ->
     query = res.match[res.match.length-1].trim()
@@ -162,7 +163,7 @@ module.exports = (robot) ->
     postdata = JSON.stringify({
       'autotext_url': query,
       'levelup': levelup,
-      'summary': if !roomtopic? then roomtopic else '',
+      'summary': if roomtopic? then roomtopic else '',
       'hashtag': scrunchName(res.message.room),
       'key': SODABOT_KEY,
     })
@@ -178,7 +179,7 @@ module.exports = (robot) ->
       else
         project = data.project
         if _.isEmpty(query) and !levelup
-          res.send "You can change the *topic* of your channel to edit the name. Change the status when ready with `level up`. Append the URL of the site where you have hosted the project for a full description, e.g. `sodabot up http:/github.com/my/project`\n"
+          res.send "The *topic* of your channel will be noted. Change the status when ready with `level up`. Append the URL of the site where you have hosted the project for a full description, e.g. `sodabot up http:/github.com/my/project`\n"
         if !project.id?
           res.send "Sorry, your project could not be synced. Please check with #support"
           logdev.warn project
