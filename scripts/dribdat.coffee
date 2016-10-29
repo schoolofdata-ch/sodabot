@@ -26,7 +26,7 @@ logger = require('tracer').dailyfile(
   root: '.'
   maxLogFiles: 5)
 
-DRIBDAT_URL = process.env.DRIBDAT_URL or "http://127.0.0.1:5000"
+DRIBDAT_URL = "http://" + (process.env.DRIBDAT_HOST or "127.0.0.1:5000")
 SODABOT_KEY = process.env.SODABOT_KEY or ''
 
 scrunchName = (nm) ->
