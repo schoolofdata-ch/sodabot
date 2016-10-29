@@ -101,7 +101,7 @@ module.exports = (robot) ->
         res.send "Hi there! I would love to help you with your project. Say `@sodabot ready` to get general advice, `@sodabot update` to get your documentation set up, or `@sodabot help` for other options."
       , 1000 * 60 * 5
 
-    if query.indexOf('- What challenge(s) apply to your project') != -1
+    if query.indexOf('What challenge(s) apply to your project') != -1
       postdata = JSON.stringify({
         'longtext': query,
         'hashtag': scrunchName(res.message.room),
