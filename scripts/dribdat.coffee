@@ -74,7 +74,7 @@ module.exports = (robot) ->
       setTimeout () ->
         return if hasIntroduced or remindIntervalId
         hasIntroduced = true
-        res.send "Hi there! I am here to help you with your project. Say `@sodabot ready` to get general advice, `@sodabot update` to get your documentation set up, or `@sodabot help` for other options."
+        res.send "Hi there! I would love to help you with your project. Say `@sodabot ready` to get general advice, `@sodabot update` to get your documentation set up, or `@sodabot help` for other options."
       , 1000 * 60 * 5
 
   # Notify the developer of something
@@ -91,6 +91,7 @@ module.exports = (robot) ->
 
   # List all projects in Dribdat by activity order
   robot.respond /all( projects)?/i, (res) ->
+    hasIntroduced = true
     robot.http(DRIBDAT_URL + "/api/event/current/projects.json")
     .header('Accept', 'application/json')
     .get() (err, response, body) ->
@@ -108,6 +109,7 @@ module.exports = (robot) ->
 
   # Search for projects in Dribdat
   robot.respond /find( a)?( project)?(.*)/i, (res) ->
+    hasIntroduced = true
     query = res.match[res.match.length-1].trim()
     if query is ""
       res.send "Looking for something to work on..? :stuck_out_tongue_closed_eyes:"
@@ -127,6 +129,7 @@ module.exports = (robot) ->
   # Help with picking a name for the project
   hasPicked = false
   robot.respond /start( project)?(.*)/i, (res) ->
+    hasIntroduced = true
     query = res.match[res.match.length-1].trim()
     if _.isEmpty(query)
       res.send "You need to specify a name for your team. Say START again followed by a name, like this: `start #{res.message.room}`"
@@ -152,10 +155,15 @@ module.exports = (robot) ->
     roomtopic = res.message.text
     logdev.debug "Topic changed to #{roomtopic}"
 
+  robot.respond /the topic/i, (res) ->
+    res.send roomtopic
+
+  hasExplained = false
   robot.respond /(level up|level down|up)(date )?(project)?(.*)/i, (res) ->
+    hasIntroduced = true
     query = res.match[res.match.length-1].trim()
     levelup = 0
-    if query == 'status'
+    if res.match[0] == 'status'
       return res.send "Change your project status by sending me `level up` or `level down` commands"
     if res.match[0] == 'level up' then levelup = 1
     if res.match[0] == 'level down' then levelup = -1
@@ -178,17 +186,20 @@ module.exports = (robot) ->
         logdev.warn data.error
       else
         project = data.project
-        if _.isEmpty(query) and !levelup
-          res.send "The *topic* of your channel will be noted. Change the status when ready with `level up`. Append the URL of the site where you have hosted the project for a full description, e.g. `sodabot up http:/github.com/my/project`\n"
+        if _.isEmpty(query) and levelup == 0 and project.summary == ''
+          res.send "The *topic* of your channel can be used to set the project summary. Append the link to the site where you have hosted the project for a full *description*, e.g. `sodabot up http:/github.com/my/project`\n"
         if !project.id?
           res.send "Sorry, your project could not be synced. Please check with #support"
           logdev.warn project
         else
-          res.send "Your project is now *#{project.phase}* at #{DRIBDAT_URL}/project/#{project.id}"
-          # res.send "To change your project status to #{next_status} say `level up`"
+          res.send "Your project is now *#{project.phase}* at #{DRIBDAT_URL}/project/#{project.id} - set your *status* with `level up` or `level down`."
+        if project.score > 30 and not hasExplained
+          hasExplained = true
+          res.send "Your project is coming together! Now we need you to fill in the blanks. On the README or wiki page which you have linked to this project, please answer the following questions:\n\n- What challenge(s) apply to your project?\n- Describe the problem and why we should care in 3-5 sentences.\n- Describe your solution in 3-5 sentences.\n- Add any screenshots / demo links / photos of the results we should look at.\n- Enter any links or datasets that were key to your progress.\n- Where did this project stand prior to the Climathon?\n- Why do you think your project is relevant for the City of Zurich?\n- Any other comments about your experience."
 
   # Just say hello
   robot.respond /(hello|hey|gruezi|grüzi|welcome|why are you here)/i, (res) ->
+    hasIntroduced = true
     res.send "Hi there! So awesome to be here at this hackathon. After a while of working on something intently human [not bot, mind you :robot_face:] concentration usually takes a dive, often for simple reasons like postures or hydration. I am here to help fix that. If you are READY, I will send your team a healthy habit every half hour - brought to you by @max of #mySYNS\n\nReady?"
 
   # How much time
@@ -207,6 +218,7 @@ module.exports = (robot) ->
   remindAt = 0
   remindIntervalId = null
   robot.respond /.*(yes|ready|s go)[!]*/i, (res) ->
+    hasIntroduced = true
     if remindIntervalId
       res.send "All set! You should get messages every next hour. If you need one *now*, leave a note in #support or say TIME."
       return
