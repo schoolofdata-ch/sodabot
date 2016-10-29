@@ -101,6 +101,31 @@ module.exports = (robot) ->
         res.send "Hi there! I would love to help you with your project. Say `@sodabot ready` to get general advice, `@sodabot update` to get your documentation set up, or `@sodabot help` for other options."
       , 1000 * 60 * 5
 
+    if query.indexOf('- What challenge(s) apply to your project') != -1
+      logdev.info('Capturing query')
+      postdata = JSON.stringify({
+        'longtext': query,
+        'hashtag': scrunchName(res.message.room),
+        'key': SODABOT_KEY,
+      })
+      # logdev.debug postdata
+      robot.http(DRIBDAT_URL + "/api/project/push.json")
+      .header('Content-Type', 'application/json')
+      .post(postdata) (err, response, body) ->
+        # logdev.debug body
+        # error checking code here
+        data = JSON.parse body
+        if data.error?
+          res.send "Sorry, something went wrong. Please check with #support"
+          logdev.warn data.error
+        else
+          project = data.project
+          if !project.id?
+            res.send "Sorry, your project could not be synced. Please check with #support"
+            logdev.warn project
+          else
+            res.send "Your project has been updated at #{DRIBDAT_URL}/project/#{project.id}"
+
   # Notify the developer of something
   robot.respond /fix (.*)/, (res) ->
     query = res.match[0]
@@ -227,31 +252,7 @@ module.exports = (robot) ->
         if not chdata.hasExplained
           chdata.hasExplained = true
           saveChannel chdata
-          res.send "Now we can fill in the blanks. Please copy and paste these questions in a reply to me:\n\n- What challenge(s) apply to your project?\n- Describe the problem and why we should care in 3-5 sentences.\n- Describe your solution in 3-5 sentences.\n- Add any screenshots / demo links / photos of the results we should look at.\n- Enter any links or datasets that were key to your progress.\n- Where did this project stand prior to the Climathon?\n- Why do you think your project is relevant for the City of Zurich?\n- Any other comments about your experience:"
-
-  robot.listen /(- What challenge(s) apply to your project.*)/ig, (res) ->
-    chdata = helloChannel res.message.room
-    postdata = JSON.stringify({
-      'longtext': res.match[0],
-      'key': SODABOT_KEY,
-    })
-    # logdev.debug postdata
-    robot.http(DRIBDAT_URL + "/api/project/push.json")
-    .header('Content-Type', 'application/json')
-    .post(postdata) (err, response, body) ->
-      # logdev.debug body
-      # error checking code here
-      data = JSON.parse body
-      if data.error?
-        res.send "Sorry, something went wrong. Please check with #support"
-        logdev.warn data.error
-      else
-        project = data.project
-        if !project.id?
-          res.send "Sorry, your project could not be synced. Please check with #support"
-          logdev.warn project
-        else
-          res.send "Your project has been updated at #{DRIBDAT_URL}/project/#{project.id}"
+          res.send "Now we can fill in the blanks. Please copy and paste these questions with your responses into the channel:\n\n- What challenge(s) apply to your project?\n- Describe the problem and why we should care in 3-5 sentences.\n- Describe your solution in 3-5 sentences.\n- Add any screenshots / demo links / photos of the results we should look at.\n- Enter any links or datasets that were key to your progress.\n- Where did this project stand prior to the Climathon?\n- Why do you think your project is relevant for the City of Zurich?\n- Any other comments about your experience:"
 
   # How much time
   timeAndQuote = (res) ->
