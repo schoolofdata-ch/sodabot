@@ -1,5 +1,5 @@
 # Description:
-#   Commands to query CKAN portals, currently configured for https://opendata.swiss
+#   Commands to query CKAN portals for open data
 #
 # Dependencies:
 #   "ckan.js"
