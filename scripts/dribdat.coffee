@@ -89,7 +89,7 @@ module.exports = (robot) ->
   # Log all interactions
   robot.hear /(.*)/, (res) ->
     chdata = getChannel res.message.room
-    query = res.match[1]
+    query = res.message.text
     logger.trace "#{query} [##{res.message.room}]"
 
     if not chdata.remindInterval and not chdata.hasIntroduced
@@ -102,7 +102,6 @@ module.exports = (robot) ->
       , 1000 * 60 * 5
 
     if query.indexOf('- What challenge(s) apply to your project') != -1
-      logdev.info('Capturing query')
       postdata = JSON.stringify({
         'longtext': query,
         'hashtag': scrunchName(res.message.room),
