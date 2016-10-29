@@ -10,6 +10,7 @@
 #   hubot all projects - List all documented projects at the current hackathon.
 #   hubot find <query> - Search among all hackathon projects.
 #   hubot start project - Get help starting a project
+#   hubot update project - Publish project documentation
 #   hubot who are you - Some info on me and my makers
 #   hubot welcome - Introduce the healthy hacker bot
 #   hubot ready - Start receving hourly healthy habits
@@ -25,8 +26,8 @@ logger = require('tracer').dailyfile(
   root: '.'
   maxLogFiles: 5)
 
-DRIBDAT_URL = "http://127.0.0.1:5000" # "http://dribdat.soda.camp"
-SODABOT_KEY = "abcd"
+DRIBDAT_URL = process.env.DRIBDAT_URL or "http://127.0.0.1:5000"
+SODABOT_KEY = process.env.SODABOT_KEY or ''
 
 scrunchName = (nm) ->
   return nm.toLowerCase().replace(/[^A-z0-9]/g, "-")
@@ -65,9 +66,16 @@ module.exports = (robot) ->
       logdev.info "#{eventInfo.name} #{timeuntil}"
 
   # Log all interactions
+  hasIntroduced = false
   robot.hear /(.*)/, (res) ->
     query = res.match[0]
     logger.trace "#{query} [##{res.message.room}]"
+    if not remindIntervalId and not hasIntroduced
+      setTimeout () ->
+        return if hasIntroduced or remindIntervalId
+        hasIntroduced = true
+        res.send "Hi there! I am here to help you with your project. Say `@sodabot ready` to get general advice, `@sodabot update` to get your documentation set up, or `@sodabot help` for other options."
+      , 1000 * 60 * 5
 
   # Notify the developer of something
   robot.respond /fix (.*)/, (res) ->
@@ -77,6 +85,9 @@ module.exports = (robot) ->
 
   robot.respond /(issue|bug|problem|who are you|what are you).*/i, (res) ->
     res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today :simple_smile:\nDid you find a bug or have an improvement to suggest? Write a note to my developers by telling me to FIX something, or look for *sodabot* on GitHub and blame her instead!"
+
+  robot.respond /.*(stupid|idiot|blöd).*/i, (res) ->
+    res.send "I heard that! :slightly_frowning_face:"
 
   # List all projects in Dribdat by activity order
   robot.respond /all( projects)?/i, (res) ->
@@ -140,21 +151,25 @@ module.exports = (robot) ->
   robot.topic (res) ->
     roomtopic = res.message.text
 
-  robot.respond /(level )?up(date )?(project)?(.*)/i, (res) ->
+  robot.respond /(level up|level down|up)(date )?(project)?(.*)/i, (res) ->
     query = res.match[res.match.length-1].trim()
+    levelup = 0
+    if query == 'status'
+      return res.send "Change your project status by sending me `level up` or `level down` commands"
+    if res.match[0] == 'level up' then levelup = 1
+    if res.match[0] == 'level down' then levelup = -1
     if !_.startsWith(query, 'http') then query = ''
-    levelup = res.match[0] == 'level'
     postdata = JSON.stringify({
-      'blah': 1234,
-      'summary': if roomtopic? then roomtopic else '',
       'autotext_url': query,
+      'levelup': levelup,
+      'summary': if roomtopic? then roomtopic else '',
       'hashtag': scrunchName(res.message.room),
-      'key': process.env.SODABOT_KEY,
+      'key': SODABOT_KEY,
     })
     robot.http(DRIBDAT_URL + "/api/project/push.json")
     .header('Content-Type', 'application/json')
     .post(postdata) (err, response, body) ->
-      logdev.debug body
+      # logdev.debug body
       # error checking code here
       data = JSON.parse body
       if data.error?
@@ -163,12 +178,12 @@ module.exports = (robot) ->
       else
         project = data.project
         if _.isEmpty(query) and !levelup
-          res.send "You can change the *topic* of your channel and up again to edit the name, or append the URL of the site where you have hosted the project for a full description, e.g. `sodabot up http:/github.com/my/project`\n"
+          res.send "You can change the *topic* of your channel to edit the name. Change the status when ready with `level up`. Append the URL of the site where you have hosted the project for a full description, e.g. `sodabot up http:/github.com/my/project`\n"
         if !project.id?
           res.send "Sorry, your project could not be synced. Please check with #support"
           logdev.warn project
         else
-          res.send "Your project is now up to date at #{DRIBDAT_URL}/project/#{project.id}"
+          res.send "Your project is now *#{project.phase}* at #{DRIBDAT_URL}/project/#{project.id}"
           # res.send "To change your project status to #{next_status} say `level up`"
 
   # Just say hello
@@ -194,12 +209,11 @@ module.exports = (robot) ->
     if remindIntervalId
       res.send "All set! You should get messages every next hour. If you need one *now*, leave a note in #support or say TIME."
       return
-    res.send "Okay, I will check in on you regularly. To shush me, just tell me to be QUIET. Happy hacking!"
-    channelActive = true
+    res.send "Okay, I will check in on you from time to time. To shush me, just tell me to be QUIET. Happy hacking!"
     remindIntervalId = setInterval () ->
         remindAt = 0 if ++remindAt == hackyQuotes.length
         timeAndQuote res
-      , 1000 * 5 #60 * 30
+      , 1000 * 60 * 30
 
   robot.respond /.*(quiet)[!]*/i, (res) ->
     if remindIntervalId
