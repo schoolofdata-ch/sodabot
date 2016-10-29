@@ -162,11 +162,12 @@ module.exports = (robot) ->
   robot.respond /(level up|level down|up)(date )?(project)?(.*)/i, (res) ->
     hasIntroduced = true
     query = res.match[res.match.length-1].trim()
-    levelup = 0
-    if res.match[0] == 'status'
+    if query == 'status'
       return res.send "Change your project status by sending me `level up` or `level down` commands"
-    if res.match[0] == 'level up' then levelup = 1
-    if res.match[0] == 'level down' then levelup = -1
+    levelup = 0
+    levelupquery = res.match[1].trim().toLowerCase()
+    if levelupquery == 'level up' then levelup = 1
+    if levelupquery == 'level down' then levelup = -1
     if !_.startsWith(query, 'http') then query = ''
     postdata = JSON.stringify({
       'autotext_url': query,
@@ -175,6 +176,7 @@ module.exports = (robot) ->
       'hashtag': scrunchName(res.message.room),
       'key': SODABOT_KEY,
     })
+    # logdev.debug postdata
     robot.http(DRIBDAT_URL + "/api/project/push.json")
     .header('Content-Type', 'application/json')
     .post(postdata) (err, response, body) ->
@@ -192,10 +194,11 @@ module.exports = (robot) ->
           res.send "Sorry, your project could not be synced. Please check with #support"
           logdev.warn project
         else
-          res.send "Your project is now *#{project.phase}* at #{DRIBDAT_URL}/project/#{project.id} - set your *status* with `level up` or `level down`."
+          res.send "Your project is now *#{project.phase}* at #{DRIBDAT_URL}/project/#{project.id}"
+          res.send "Set your *team status* with `level up` or `level down`." if levelup == 0
         if project.score > 30 and not hasExplained
           hasExplained = true
-          res.send "Your project is coming together! Now we need you to fill in the blanks. On the README or wiki page which you have linked to this project, please answer the following questions:\n\n- What challenge(s) apply to your project?\n- Describe the problem and why we should care in 3-5 sentences.\n- Describe your solution in 3-5 sentences.\n- Add any screenshots / demo links / photos of the results we should look at.\n- Enter any links or datasets that were key to your progress.\n- Where did this project stand prior to the Climathon?\n- Why do you think your project is relevant for the City of Zurich?\n- Any other comments about your experience."
+          res.send "Now we can fill in the blanks. On the README or wiki page which you have linked to this project, please answer these questions:\n\n- What challenge(s) apply to your project?\n- Describe the problem and why we should care in 3-5 sentences.\n- Describe your solution in 3-5 sentences.\n- Add any screenshots / demo links / photos of the results we should look at.\n- Enter any links or datasets that were key to your progress.\n- Where did this project stand prior to the Climathon?\n- Why do you think your project is relevant for the City of Zurich?\n- Any other comments about your experience."
 
   # Just say hello
   robot.respond /(hello|hey|gruezi|grüzi|welcome|why are you here)/i, (res) ->
