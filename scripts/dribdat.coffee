@@ -162,7 +162,7 @@ module.exports = (robot) ->
     postdata = JSON.stringify({
       'autotext_url': query,
       'levelup': levelup,
-      'summary': if roomtopic? then roomtopic else '',
+      'summary': if !roomtopic? then roomtopic else '',
       'hashtag': scrunchName(res.message.room),
       'key': SODABOT_KEY,
     })
