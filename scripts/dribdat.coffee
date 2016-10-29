@@ -6,15 +6,15 @@
 #   "moment.js"
 #
 # Commands:
-#   hubot time left - How much time until the hackathon starts or finishes?
+#   hubot ready - Say hello and get your hourly healthy habits
+#   hubot quiet - Stop receiving hourly updates
+#   hubot time left - How much time left until the hackathon starts or finishes?
 #   hubot all projects - List all documented projects at the current hackathon.
 #   hubot find <query> - Search among all hackathon projects.
 #   hubot start project - Get help starting a project
 #   hubot update project - Publish project documentation
 #   hubot who are you - Some info on me and my makers
-#   hubot welcome - Introduce the healthy hacker bot
-#   hubot ready - Start receving hourly healthy habits
-#   hubot quiet - Stop receiving hourly healthy habits
+#   hubot questions - Find out how to document your project
 #   hubot fix <something> - Notify the developers of a problem
 
 moment = require 'moment'
@@ -51,6 +51,26 @@ module.exports = (robot) ->
   hackyQuotes = require process.cwd() + '/hacky-quotes.json'
   hackyQuotes = _.shuffle hackyQuotes.all
 
+  # A per-channel brain
+  getChannel = (id) ->
+    return robot.brain.get("room-#{id}") or {
+        id: id,
+        hasIntroduced: false,
+        hasExplained: false,
+        hasPicked: false,
+        roomTopic: null,
+        remindAt: 0,
+        remindInterval: null,
+      }
+  saveChannel = (dt) ->
+    id = dt.id
+    robot.brain.set "room-#{id}", dt
+  helloChannel = (id) ->
+    chdata = getChannel id
+    chdata.hasIntroduced = true
+    saveChannel chdata
+    return chdata
+
   # Get and cache current event data
   eventInfo = null
   robot.http(DRIBDAT_URL + "/api/event/current/info.json")
@@ -66,14 +86,17 @@ module.exports = (robot) ->
       logdev.info "#{eventInfo.name} #{timeuntil}"
 
   # Log all interactions
-  hasIntroduced = false
   robot.hear /(.*)/, (res) ->
-    query = res.match[0]
+    chdata = getChannel res.message.room
+    query = res.match[1]
     logger.trace "#{query} [##{res.message.room}]"
-    if not remindIntervalId and not hasIntroduced
+
+    if not chdata.remindInterval and not chdata.hasIntroduced
       setTimeout () ->
-        return if hasIntroduced or remindIntervalId
-        hasIntroduced = true
+        chdata = getChannel res.message.room
+        return if chdata.remindInterval or chdata.hasIntroduced
+        chdata.hasIntroduced = true
+        saveChannel chdata
         res.send "Hi there! I would love to help you with your project. Say `@sodabot ready` to get general advice, `@sodabot update` to get your documentation set up, or `@sodabot help` for other options."
       , 1000 * 60 * 5
 
@@ -84,14 +107,14 @@ module.exports = (robot) ->
     res.send "Thanks for letting us know. If you do not get a response from us soon, post to the wall of shame at https://github.com/sodacamp/sodabotnik/issues"
 
   robot.respond /(issue|bug|problem|who are you|what are you).*/i, (res) ->
-    res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today :simple_smile:\nDid you find a bug or have an improvement to suggest? Write a note to my developers by telling me to FIX something, or look for *sodabot* on GitHub and blame her instead!"
+    res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today. :simple_smile: Did you find a bug or have an improvement to suggest? Write a note to my developers by telling me to FIX something, or look for *sodabot* on GitHub and blame her instead!"
 
   robot.respond /.*(stupid|idiot|blöd).*/i, (res) ->
     res.send "I heard that! :slightly_frowning_face:"
 
   # List all projects in Dribdat by activity order
   robot.respond /all( projects)?/i, (res) ->
-    hasIntroduced = true
+    chdata = helloChannel res.message.room
     robot.http(DRIBDAT_URL + "/api/event/current/projects.json")
     .header('Accept', 'application/json')
     .get() (err, response, body) ->
@@ -109,7 +132,7 @@ module.exports = (robot) ->
 
   # Search for projects in Dribdat
   robot.respond /find( a)?( project)?(.*)/i, (res) ->
-    hasIntroduced = true
+    chdata = helloChannel res.message.room
     query = res.match[res.match.length-1].trim()
     if query is ""
       res.send "Looking for something to work on..? :stuck_out_tongue_closed_eyes:"
@@ -127,22 +150,24 @@ module.exports = (robot) ->
           res.send "*#{project.name}*: #{project.summary} #{DRIBDAT_URL}/project/#{project.id}"
 
   # Help with picking a name for the project
-  hasPicked = false
   robot.respond /start( project)?(.*)/i, (res) ->
-    hasIntroduced = true
+    chdata = helloChannel res.message.room
     query = res.match[res.match.length-1].trim()
     if _.isEmpty(query)
       res.send "You need to specify a name for your team. Say START again followed by a name, like this: `start #{res.message.room}`"
       setTimeout () ->
-          return if hasPicked
+          chdata = helloChannel res.message.room
+          return if chdata.hasPicked
           res.send "Having trouble finding a name? Try http://www.ykombinator.com/"
           setTimeout () ->
-              return if hasPicked
+              chdata = helloChannel res.message.room
+              return if chdata.hasPicked
               res.send "Maybe that was not so helpful :laughing: Try this instead: http://www.namemesh.com/company-name-generator/"
             , 1000 * 30
         , 1000 * 5
       return
-    hasPicked = true
+    chdata.hasPicked = true
+    saveChannel chdata
     teamname = scrunchName query
     roomname = scrunchName res.message.room
     if teamname != roomname
@@ -150,17 +175,19 @@ module.exports = (robot) ->
     else
       res.send "Looks like your project has been set up. Say UP when you are ready to update."
 
-  roomtopic = null
   robot.topic (res) ->
-    roomtopic = res.message.text
-    logdev.debug "Topic changed to #{roomtopic}"
+    roomTopic = res.message.text
+    chdata = getChannel res.message.room
+    chdata.roomTopic = roomTopic
+    saveChannel chdata
+    logdev.debug "Topic changed to #{roomTopic}"
 
-  robot.respond /the topic/i, (res) ->
-    res.send roomtopic
+  robot.respond /(.*)topic\??/i, (res) ->
+    chdata = getChannel res.message.room
+    res.send chdata.roomTopic
 
-  hasExplained = false
   robot.respond /(level up|level down|up)(date )?(project)?(.*)/i, (res) ->
-    hasIntroduced = true
+    chdata = helloChannel res.message.room
     query = res.match[res.match.length-1].trim()
     if query == 'status'
       return res.send "Change your project status by sending me `level up` or `level down` commands"
@@ -172,7 +199,7 @@ module.exports = (robot) ->
     postdata = JSON.stringify({
       'autotext_url': query,
       'levelup': levelup,
-      'summary': if roomtopic? then roomtopic else '',
+      'summary': if roomTopic? then roomTopic else '',
       'hashtag': scrunchName(res.message.room),
       'key': SODABOT_KEY,
     })
@@ -196,14 +223,10 @@ module.exports = (robot) ->
         else
           res.send "Your project is now *#{project.phase}* at #{DRIBDAT_URL}/project/#{project.id}"
           res.send "Set your *team status* with `level up` or `level down`." if levelup == 0
-        if project.score > 30 and not hasExplained
-          hasExplained = true
+        if project.score > 25 and not chdata.hasExplained
+          chdata.hasExplained = true
+          saveChannel chdata
           res.send "Now we can fill in the blanks. On the README or wiki page which you have linked to this project, please answer these questions:\n\n- What challenge(s) apply to your project?\n- Describe the problem and why we should care in 3-5 sentences.\n- Describe your solution in 3-5 sentences.\n- Add any screenshots / demo links / photos of the results we should look at.\n- Enter any links or datasets that were key to your progress.\n- Where did this project stand prior to the Climathon?\n- Why do you think your project is relevant for the City of Zurich?\n- Any other comments about your experience."
-
-  # Just say hello
-  robot.respond /(hello|hey|gruezi|grüzi|welcome|why are you here)/i, (res) ->
-    hasIntroduced = true
-    res.send "Hi there! So awesome to be here at this hackathon. After a while of working on something intently human [not bot, mind you :robot_face:] concentration usually takes a dive, often for simple reasons like postures or hydration. I am here to help fix that. If you are READY, I will send your team a healthy habit every half hour - brought to you by @max of #mySYNS\n\nReady?"
 
   # How much time
   timeAndQuote = (res) ->
@@ -218,23 +241,30 @@ module.exports = (robot) ->
   # Answer if asked
   robot.respond /time( left)?\??/i, timeAndQuote
 
-  remindAt = 0
-  remindIntervalId = null
-  robot.respond /.*(yes|ready|s go)[!]*/i, (res) ->
-    hasIntroduced = true
-    if remindIntervalId
-      res.send "All set! You should get messages every next hour. If you need one *now*, leave a note in #support or say TIME."
+  # Say hello and get started
+  robot.respond /(ready|lets go|hello|hey|gruezi|grüzi|welcome|why are you here)/i, (res) ->
+    chdata = helloChannel res.message.room
+    if chdata.remindInterval
+      res.send "All set! You should be get messages every next hour. If you need one *now*, say TIME."
       return
-    res.send "Okay, I will check in on you from time to time. To shush me, just tell me to be QUIET. Happy hacking!"
-    remindIntervalId = setInterval () ->
+    res.send "Hi there! So nice to be here at this hackathon. After intensive work, concentration in humans usually takes a dive - often for simple reasons, like posture or hydration. I will start sending your team a healthy habit every half hour to help with that. To shush me, just tell me to be QUIET. Happy hacking!"
+    chdata.remindInterval = setInterval () ->
+        chdata = getChannel res.message.room
+        remindAt = chdata.remindAt
         remindAt = 0 if ++remindAt == hackyQuotes.length
+        chdata.remindAt = remindAt
+        saveChannel chdata
         timeAndQuote res
       , 1000 * 60 * 30
+    saveChannel chdata
 
-  robot.respond /.*(quiet)[!]*/i, (res) ->
-    if remindIntervalId
-      clearInterval(remindIntervalId)
-      remindIntervalId = null
+  # Be cool
+  robot.respond /(be )quiet[!]*/i, (res) ->
+    chdata = helloChannel res.message.room
+    if chdata.remindInterval
+      clearInterval(chdata.remindInterval)
+      chdata.remindInterval = null
+      saveChannel chdata
       res.send "Fine, I will leave you in peace. Let me know when you are READY to rumble again!"
     else
       res.send "Did I say something? Did you say something?"
