@@ -262,6 +262,17 @@ module.exports = (robot) ->
       res.send "> #{quote}\n\n#{eventInfo.name} #{timeuntil}"
     else
       res.send "#{eventInfo.name} is over. Hack again soon!"
+    return timeuntil
+
+  # Cancel reminders
+  cancelReminders = (res) ->
+    chdata = helloChannel res.message.room
+    if chdata.remindInterval
+      clearInterval(chdata.remindInterval)
+      chdata.remindInterval = null
+      saveChannel chdata
+      return true
+    return false
 
   # Answer if asked
   robot.respond /time( left)?\??/i, timeAndQuote
@@ -278,18 +289,16 @@ module.exports = (robot) ->
         remindAt = chdata.remindAt
         remindAt = 0 if ++remindAt == hackyQuotes.length
         chdata.remindAt = remindAt
-        saveChannel chdata
-        timeAndQuote res
+        if not timeAndQuote res
+          cancelReminders res
+        else
+          saveChannel chdata
       , 1000 * 60 * 30
     saveChannel chdata
 
   # Be cool
   robot.respond /(be )quiet[!]*/i, (res) ->
-    chdata = helloChannel res.message.room
-    if chdata.remindInterval
-      clearInterval(chdata.remindInterval)
-      chdata.remindInterval = null
-      saveChannel chdata
+    if cancelReminders res
       res.send "Fine, I will leave you in peace. Let me know when you are READY to rumble again!"
     else
       res.send "Did I say something? Did you say something?"
