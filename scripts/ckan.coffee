@@ -37,10 +37,11 @@ module.exports = (robot) ->
 			logdev.info "#{client.endpoint}"
 			portal = client.endpoint.split('//')[1]
 			action = "package_search"
-			client.action action, data, (err, json, w) ->
+			client.action action, data, (err, json) ->
 				shown = total = 0
 				if err
 					logdev.error "Service error"
+					logdev.debug "#{err}"
 				else if !json.success
 					if json.error
 						logdev.warn "#{json.error.message}"

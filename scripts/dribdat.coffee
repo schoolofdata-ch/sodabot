@@ -99,32 +99,11 @@ if DRIBDAT_URL
           return if chdata.remindInterval or chdata.hasIntroduced
           chdata.hasIntroduced = true
           saveChannel chdata
-          res.send "Hi there! I would love to help you with your project. Say `@sodabot ready` to get general advice, `@sodabot update` to get your documentation set up, or `@sodabot help` for other options."
+          res.send "Hi there! I am here to help you with your project. " +
+            "Say `@sodabot ready` to get general advice, `@sodabot update` " +
+            "to get your documentation set up, or `@sodabot help` for other " +
+            "options."
         , 1000 * 60 * 5
-
-      if query.indexOf('What challenge(s) apply to your project') != -1
-        postdata = JSON.stringify({
-          'longtext': query,
-          'hashtag': scrunchName(res.message.room),
-          'key': SODABOT_KEY,
-        })
-        # logdev.debug postdata
-        robot.http(DRIBDAT_URL + "/api/project/push.json")
-        .header('Content-Type', 'application/json')
-        .post(postdata) (err, response, body) ->
-          # logdev.debug body
-          # error checking code here
-          data = JSON.parse body
-          if data.error?
-            res.send "Sorry, something went wrong. Please check with #support"
-            logdev.warn data.error
-          else
-            project = data.project
-            if !project.id?
-              res.send "Sorry, your project could not be synced. Please check with #support"
-              logdev.warn project
-            else
-              res.send "Your project has been updated at #{DRIBDAT_URL}/project/#{project.id}"
 
     # Notify the developer of something
     robot.respond /fix (.*)/, (res) ->
@@ -197,7 +176,8 @@ if DRIBDAT_URL
       teamname = scrunchName query
       roomname = scrunchName res.message.room
       if teamname != roomname
-        res.send "Great! You should now start a channel called ##{teamname} ...then invite your team members to it, and then repeat what you just told me from there."
+        res.send "Great! You should now start a channel called ##{teamname} - " +
+          "then invite your team members to it, and repeat what you just said."
       else
         res.send "Looks like your project has been set up. Say UP when you are ready to update."
 
@@ -248,11 +228,32 @@ if DRIBDAT_URL
             logdev.warn project
           else
             res.send "Your project is now *#{project.phase}* at #{DRIBDAT_URL}/project/#{project.id}"
-            res.send "Set your *team status* with `level up` or `level down`." if levelup == 0
+            res.send "Set your team status with `level up` or `level down`." if levelup == 0
           if not chdata.hasExplained
             chdata.hasExplained = true
             saveChannel chdata
-            res.send "Now we can fill in the blanks. Please copy and paste these questions with your responses into the channel:\n\n- What challenge(s) apply to your project?\n- Describe the problem and why we should care in 3-5 sentences.\n- Describe your solution in 3-5 sentences.\n- Add any screenshots / demo links / photos of the results we should look at.\n- Enter any links or datasets that were key to your progress.\n- Where did this project stand prior to the Climathon?\n- Why do you think your project is relevant for the City of Zurich?\n- Any other comments about your experience:"
+            postdata = JSON.stringify({
+              'longtext': query,
+              'hashtag': scrunchName(res.message.room),
+              'key': SODABOT_KEY,
+            })
+            # logdev.debug postdata
+            robot.http(DRIBDAT_URL + "/api/project/push.json")
+            .header('Content-Type', 'application/json')
+            .post(postdata) (err, response, body) ->
+              # logdev.debug body
+              # error checking code here
+              data = JSON.parse body
+              if data.error?
+                res.send "Sorry, something went wrong. Please check with #support"
+                logdev.warn data.error
+              else
+                project = data.project
+                if !project.id?
+                  res.send "Sorry, your project could not be synced. Please check with #support"
+                  logdev.warn project
+                else
+                  res.send "Your project has been updated at #{DRIBDAT_URL}/project/#{project.id}"
 
     # How much time
     timeAndQuote = (res) ->
@@ -282,9 +283,10 @@ if DRIBDAT_URL
     robot.respond /(ready|lets go|hello|hey|gruezi|grüzi|welcome|why are you here)/i, (res) ->
       chdata = helloChannel res.message.room
       if chdata.remindInterval
-        res.send "All set! You should be get messages every next hour. If you need one *now*, say TIME."
+        res.send "Okay! You will get messages every hour. If you need one now, say `time`."
         return
-      res.send "Hi there! So nice to be here at this hackathon. After intensive work, concentration in humans usually takes a dive - often for simple reasons, like posture or hydration. I will start sending your team a healthy habit every half hour to help with that. To shush me, just tell me to be QUIET. Happy hacking!"
+      res.send "Hello there! I can help you with healthy habit reminders. " +
+        "To shush me, just tell me to be `quiet`. Happy hacking!"
       chdata.remindInterval = setInterval () ->
           chdata = getChannel res.message.room
           remindAt = chdata.remindAt
@@ -300,6 +302,6 @@ if DRIBDAT_URL
     # Be cool
     robot.respond /(be )quiet[!]*/i, (res) ->
       if cancelReminders res
-        res.send "Fine, I will leave you in peace. Let me know when you are READY to rumble again!"
+        res.send "Fine, I will leave you in peace. Let me know when you are `ready` to rumble!"
       else
         res.send "Did I say something? Did you say something?"
