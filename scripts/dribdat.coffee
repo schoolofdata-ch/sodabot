@@ -26,7 +26,7 @@ logger = require('tracer').dailyfile(
   root: '.'
   maxLogFiles: 5)
 
-DRIBDAT_URL = "http://" + (process.env.DRIBDAT_HOST or "127.0.0.1:5000")
+DRIBDAT_URL = "http://" + (process.env.DRIBDAT_HOST or None)
 SODABOT_KEY = process.env.SODABOT_KEY or ''
 DEFAULT_SRC = ""
 
@@ -47,6 +47,8 @@ timeUntil = (event) ->
   return cc + ' ' + moment(dt, fmt).fromNow() + suffix
 
 module.exports = (robot) ->
+  if not DRIBDAT_URL
+    return
 
   # Load the quote file
   hackyQuotes = require process.cwd() + '/hacky-quotes.json'
@@ -129,7 +131,7 @@ module.exports = (robot) ->
   robot.respond /fix (.*)/, (res) ->
     query = res.match[0]
     logdev.warn query + ' #' + res.message.room
-    res.send "Thanks for letting us know. If you do not get a response from us soon, post to the wall of shame at https://github.com/sodacamp/sodabotnik/issues"
+    res.send "Thanks for letting us know. If you do not get a response from us soon, post to the wall of shame at https://github.com/schoolofdata-ch/sodabot/issues"
 
   robot.respond /(issue|bug|problem|who are you|what are you).*/i, (res) ->
     res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today. :simple_smile: Did you find a bug or have an improvement to suggest? Write a note to my developers by telling me to FIX something, or look for *sodabot* on GitHub and blame her instead!"

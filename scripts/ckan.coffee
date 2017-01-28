@@ -10,6 +10,7 @@
 
 CKAN = require 'ckan'
 portal = "opendata.swiss"
+portal = "data.stadt-zurich.ch"
 client = new CKAN.Client "https://#{portal}"
 
 module.exports = (robot) ->
@@ -32,7 +33,7 @@ module.exports = (robot) ->
 					total = json.result.count
 					if datasets.length > 0
 						latest = ("#{ds.title.en}\n" +
-							"https://" + portal + "/en/dataset/" +
+							"https://" + portal + "/dataset/" +
 							"#{ds.name}" for ds in datasets)
 						latest = latest[0..2].join '\n'
 						res.send "#{latest}"

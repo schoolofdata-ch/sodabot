@@ -46,7 +46,7 @@ module.exports = (robot) ->
   ]
 
   robot.respond /(issue|bug|problem|who are you|what are you).*/i, (res) ->
-    res.send "I am a SODA-001 series personal algoristant powered by a Hubot 2 engine - delighted to be with you today :simple_smile:\nDid you find a bug or have an improvement to suggest? Write a note to my developers in the #support channel, or look for *sodabotnik* on GitHub and blame him instead!"
+    res.send "I am a SODA-001 series personal algoristant powered by a Hubot 2 engine - delighted to be with you today :simple_smile:\nDid you find a bug or have an improvement to suggest? Write a note to my developers in the #support channel, or look for *sodabot* on GitHub and blame him instead!"
 
   robot.respond /(hello|hey|gruezi|grüzi|welcome|why are you here)/i, (res) ->
     res.send "Hi there! So awesome to be here at this hackathon. After a while of working on something intently human [not bot, mind you :robot_face:] concentration usually takes a dive, often for simple reasons like postures or hydration. I am here to help fix that. If you are READY, I will send your team a healthy habit every half hour - brought to you by @max of #mySYNS\n\nReady?"
