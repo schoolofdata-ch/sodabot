@@ -23,7 +23,6 @@ module.exports = (robot) ->
 	robot.respond /(fresh )?(data)( on)?(.*)/i, (res) ->
 		query = res.match[res.match.length-1].trim()
 
-		action = "package_search"
 		if query is ""
 			data = { sort: 'metadata_modified desc' }
 			res.reply "Fetching fresh, open data..."
@@ -35,14 +34,18 @@ module.exports = (robot) ->
 			res.reply "Looking up open '#{query}' data..."
 
 		queryPortal = (client) ->
-			logdev.info "Querying #{client.endpoint}"
+			logdev.info "#{client.endpoint}"
 			portal = client.endpoint.split('//')[1]
-			client.action action, data, (err, json) ->
+			action = "package_search"
+			client.action action, data, (err, json, w) ->
 				shown = total = 0
 				if err
-					logdev.warn "?? #{err}"
+					logdev.error "Service error"
 				else if !json.success
-					logdev.warn "?! #{json.error.message}"
+					if json.error
+						logdev.warn "#{json.error.message}"
+					else
+						logdev.error "#{json}"
 				else
 					if json.result.count > 0
 						datasets = json.result.results
