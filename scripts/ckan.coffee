@@ -10,7 +10,6 @@
 
 CKAN = require 'ckan'
 portal = "opendata.swiss"
-portal = "data.stadt-zurich.ch"
 client = new CKAN.Client "https://#{portal}"
 
 module.exports = (robot) ->
