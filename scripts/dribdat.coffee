@@ -285,7 +285,9 @@ if DRIBDAT_URL
       if chdata.remindInterval
         res.send "Okay! You will get messages every hour. If you need one now, say `time`."
         return
-      res.send "Hello there! I can help you with healthy habit reminders. " +
+      res.send "Hello there! Anything i can help with? Say `help` to find out more - and you can " +
+        "DM with me to avoid distracting your team. For now, i will just spam you with healthy " +
+        "habit reminders every half hour.\n\n" +
         "To shush me, just tell me to be `quiet`. Happy hacking!"
       chdata.remindInterval = setInterval () ->
           chdata = getChannel res.message.room
