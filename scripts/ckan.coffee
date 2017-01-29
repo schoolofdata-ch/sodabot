@@ -13,6 +13,7 @@ logdev = require('tracer').colorConsole()
 
 clients = []
 clients.push new CKAN.Client "https://data.stadt-zuerich.ch"
+clients[0].requestType = 'GET'
 clients.push new CKAN.Client "https://opendata.swiss/en"
 
 DATA_REQUEST = "Use this link to make a request for data to be published:\n" +
