@@ -112,7 +112,7 @@ if DRIBDAT_URL
       res.send "Thanks for letting us know. If you do not get a response from us soon, post to the wall of shame (or fork the code and send in a Pull Request!) at https://github.com/schoolofdata-ch/sodabot/issues"
 
     robot.respond /(issue|bug|problem|who are you|what are you).*/i, (res) ->
-      res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today. :simple_smile: Did you find a bug or have an improvement to suggest? Write a note to my developers by saying `#{robot.name} fix <something>`""
+      res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today. :simple_smile: Did you find a bug or have an improvement to suggest? Write a note to my developers by saying `#{robot.name} fix <something>`"
 
     robot.respond /.*(stupid|idiot|blöd).*/i, (res) ->
       res.send "I heard that! :slightly_frowning_face:"
