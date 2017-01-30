@@ -100,19 +100,19 @@ if DRIBDAT_URL
           chdata.hasIntroduced = true
           saveChannel chdata
           res.send "Hi there! I am here to help you with your project. " +
-            "Say `@sodabot ready` to get general advice, `@sodabot update` " +
-            "to get your documentation set up, or `@sodabot help` for other " +
-            "options."
+            "Say `@#{robot.name} ready` to get general advice, " +
+            "`@#{robot.name} update` to get your documentation set up, " +
+            "or `@#{robot.name} help` for other options."
         , 1000 * 60 * 5
 
     # Notify the developer of something
     robot.respond /fix (.*)/, (res) ->
       query = res.match[0]
       logdev.warn query + ' #' + res.message.room
-      res.send "Thanks for letting us know. If you do not get a response from us soon, post to the wall of shame at https://github.com/schoolofdata-ch/sodabot/issues"
+      res.send "Thanks for letting us know. If you do not get a response from us soon, post to the wall of shame (or fork the code and send in a Pull Request!) at https://github.com/schoolofdata-ch/sodabot/issues"
 
     robot.respond /(issue|bug|problem|who are you|what are you).*/i, (res) ->
-      res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today. :simple_smile: Did you find a bug or have an improvement to suggest? Write a note to my developers by telling me to FIX something, or look for *sodabot* on GitHub and blame her instead!"
+      res.send "I am an alpha personal algoristant powered by a Hubot 2 engine - delighted to be with you today. :simple_smile: Did you find a bug or have an improvement to suggest? Write a note to my developers by saying `#{robot.name} fix <something>`""
 
     robot.respond /.*(stupid|idiot|blöd).*/i, (res) ->
       res.send "I heard that! :slightly_frowning_face:"
@@ -222,7 +222,7 @@ if DRIBDAT_URL
         else
           project = data.project
           if _.isEmpty(query) and levelup == 0 and project.summary == ''
-            res.send "The *topic* of your channel can be used to set the project summary. Append the link to the site where you have hosted the project for a full *description*, e.g. `sodabot up http:/github.com/my/project`\n"
+            res.send "The *topic* of your channel can be used to set the project summary. Append the link to the site where you have hosted the project for a full *description*, e.g. `#{robot.name} up http:/github.com/my/project`\n"
           if !project.id?
             res.send "Sorry, your project could not be synced. Please check with #support"
             logdev.warn project
