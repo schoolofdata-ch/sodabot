@@ -1,11 +1,11 @@
 {
   "name": "sodabot",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "author": "Oleg Lavrovsky <oleg@utou.ch>",
   "description": "A hackathon helper",
   "dependencies": {
-    "ckan": "git+ssh://git@github.com/loleg/ckan.js.git#request-type-option",
+    "ckan": "git+ssh://git@github.com/okfn/ckan.js.git",
     "hubot": "^2.19.0",
     "hubot-help": "^0.2.0",
     "hubot-heroku-keepalive": "^1.0.2",
