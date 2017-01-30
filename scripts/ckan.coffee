@@ -34,12 +34,13 @@ module.exports = (robot) ->
 			data = { q: query }
 			res.reply "Looking up open '#{query}' data..."
 
+		shown = total = 0
 		queryPortal = (client) ->
 			logdev.info "#{client.endpoint}"
 			portal = client.endpoint.split('//')[1]
 			action = "package_search"
 			client.action action, data, (err, json) ->
-				shown = total = 0
+				shownhere = 0
 				if err
 					logdev.error "Service error"
 					logdev.debug "#{err}"
@@ -51,8 +52,9 @@ module.exports = (robot) ->
 				else
 					if json.result.count > 0
 						datasets = json.result.results
-						total = json.result.count
-						shown = datasets.length
+						total += json.result.count
+						shownhere = Math.min(datasets.length, 3)
+						shown += shownhere
 						latest = (
 						  #"#{ds.title.en}\n" +
 							"https://" + portal + "/dataset/" +
@@ -60,13 +62,13 @@ module.exports = (robot) ->
 							)
 						latest = latest[0..2].join '\n'
 						res.send "#{latest}"
-						if shown < total
-							res.send "(#{shown} shown from #{total})"
-				if shown < 3
+				if shownhere < 3
 					if ++curClient < clients.length
 						queryPortal clients[curClient]
-					else
+					else if not shown
 						res.send "Nothing found on that topic - say *data request* for help."
+				else if shown < total
+					res.send "(#{shown} shown from #{total})"
 
 		curClient = 0
 		queryPortal clients[0]
