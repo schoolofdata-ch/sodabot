@@ -60,9 +60,9 @@ module.exports = (robot) ->
 						shownhere = Math.min(datasets.length, 3)
 						shown += shownhere
 						latest = (
-							"> - [#{getDsTitle(ds.title)}](" +
+							"> #{getDsTitle(ds.title)} - " +
 							"https://" + portal + "/dataset/" +
-							"#{ds.name})" for ds in datasets
+							"#{ds.name}" for ds in datasets
 							)
 						latest = latest[0..2].join '\n'
 						if shownhere
