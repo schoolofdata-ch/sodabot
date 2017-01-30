@@ -34,10 +34,14 @@ module.exports = (robot) ->
 			data = { q: query }
 			res.reply "Looking up open '#{query}' data..."
 
+		getDsTitle = (title) ->
+			title.en || title.de || title.fr || title
+
 		shown = total = 0
 		queryPortal = (client) ->
 			logdev.info "#{client.endpoint}"
 			portal = client.endpoint.split('//')[1]
+			portalname = portal.split('/')[0]
 			action = "package_search"
 			client.action action, data, (err, json) ->
 				shownhere = 0
@@ -56,12 +60,13 @@ module.exports = (robot) ->
 						shownhere = Math.min(datasets.length, 3)
 						shown += shownhere
 						latest = (
-						  #"#{ds.title.en}\n" +
+							"> - [#{getDsTitle(ds.title)}](" +
 							"https://" + portal + "/dataset/" +
-							"#{ds.name}" for ds in datasets
+							"#{ds.name})" for ds in datasets
 							)
 						latest = latest[0..2].join '\n'
-						res.send "#{latest}"
+						if shownhere
+							res.send "*#{portalname}*\n#{latest}"
 				if shownhere < 3
 					if ++curClient < clients.length
 						queryPortal clients[curClient]
