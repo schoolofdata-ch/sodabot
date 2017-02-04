@@ -150,8 +150,9 @@ if DRIBDAT_URL
         if data.projects.length == 0
           res.send ":wind_blowing_face: Nothing found. Why not make your own #{query}?"
         else
-          res.send "First #{data.projects.length} matches:"
-          for project in data.projects
+          if data.projects.length > 5
+            res.send "First #{data.projects.length} matching "#{query}":"
+          for project in data.projects[..5]
             res.send "*#{project.name}*: #{project.summary} #{DRIBDAT_URL}/project/#{project.id}"
 
     # Help with picking a name for the project
