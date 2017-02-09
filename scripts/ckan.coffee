@@ -43,6 +43,7 @@ module.exports = (robot) ->
 			logdev.info "#{client.endpoint}"
 			portal = client.endpoint.split('//')[1]
 			portalname = portal.split('/')[0]
+                        portalurl = "https://" + portal.replace('/api','') + "/dataset/"
 			action = "package_search"
 			client.action action, data, (err, json) ->
 				shownhere = 0
@@ -61,8 +62,7 @@ module.exports = (robot) ->
 						shownhere = Math.min(datasets.length, 3)
 						shown += shownhere
 						latest = (
-							"> #{getDsTitle(ds.title)} - " +
-							"https://" + portal + "/dataset/" +
+							"> #{getDsTitle(ds.title)} - " + portalurl +
 							"#{ds.name}" for ds in datasets
 							)
 						latest = latest[0..2].join '\n'
