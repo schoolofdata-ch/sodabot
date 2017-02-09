@@ -43,7 +43,7 @@ module.exports = (robot) ->
 			logdev.info "#{client.endpoint}"
 			portal = client.endpoint.split('//')[1]
 			portalname = portal.split('/')[0]
-                        portalurl = "https://" + portal.replace('/api','') + "/dataset/"
+			portalurl = "https://" + portal.replace('/api','') + "/dataset/"
 			action = "package_search"
 			client.action action, data, (err, json) ->
 				shownhere = 0
