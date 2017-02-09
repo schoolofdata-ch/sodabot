@@ -14,11 +14,10 @@ logdev = require('tracer').colorConsole()
 clients = []
 
 # Yes, hard coding is a Bad Thing...
-clients.push new CKAN.Client "https://data.stadt-zuerich.ch"
-clients[0].requestType = 'GET'
 clients.push new CKAN.Client "https://opendata.swiss/en"
-DATA_REQUEST = "Make a request for such data to be published here:\n" +
-	"https://www.stadt-zuerich.ch/portal/de/index/ogd/kontakt.html"
+clients.push new CKAN.Client "https://data.stadt-zuerich.ch"
+clients[1].requestType = 'GET'
+DATA_REQUEST = "Please make a request in the #data channel!"
 # ...and it should go into a .json or .yml file. We know.
 
 module.exports = (robot) ->
